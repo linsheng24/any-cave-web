@@ -1,21 +1,35 @@
 import 'typeface-roboto'
 import Layout from "../components/layout";
 import type { AppProps } from 'next/app';
-import {Box, createTheme, CssBaseline, ThemeProvider} from "@material-ui/core";
-import {orange} from "@material-ui/core/colors";
+import { createTheme, CssBaseline, ThemeProvider} from "@material-ui/core";
+import {RecoilRoot, useRecoilState} from "recoil";
+import {IsLogin} from "../states/atoms/main";
+import useUser from "../states/hooks/use-user";
 
 const theme = createTheme();
 
-function MyApp({ Component, pageProps }: AppProps) {
+function App(appProps: AppProps) {
   return (
     <>
       <CssBaseline/>
       <ThemeProvider theme={theme}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <RecoilRoot>
+          <Root {...appProps} />
+        </RecoilRoot>
       </ThemeProvider>
     </>
   );
 }
-export default MyApp
+
+function Root({ Component, pageProps }: AppProps) {
+  const { user } = useUser();
+  if (user) {
+    return <Layout>
+      <Component {...pageProps} />
+    </Layout>;
+  } else {
+    return <Component {...pageProps} />;
+  }
+}
+
+export default App
