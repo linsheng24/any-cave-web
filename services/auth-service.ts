@@ -10,25 +10,22 @@ class AuthService {
   }
 
   private static getAuthHeader = () => {
-    const token = Cookies.get('token');
+    const token = Cookies.get('access_token');
     if (token) {
       return {
         'Authorization': 'Bearer ' + token,
-        'Cache-Control': 'no-cache'
       };
     } else {
-      return {
-        'Cache-Control': 'no-cache'
-      };
+      return {};
     }
   }
 
   public logout = () => {
-    Cookies.remove('token')
+    Cookies.remove('access_token')
   }
 
   public userFetcher = async () => {
-      // @ts-ignore
+    // @ts-ignore
     return this.request({
       method: 'post',
       url: '/profile',
@@ -43,9 +40,13 @@ class AuthService {
         password: password
       });
       const { data } = response;
+      if (data) {
+        const access_token = data.data.access_token;
+        Cookies.set('access_token', access_token);
+      }
       return data;
     } catch (e) {
-      throw new Error("Login error!");
+      return new Error("Login error!");
     }
   }
 

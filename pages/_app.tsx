@@ -3,8 +3,8 @@ import Layout from "../components/layout";
 import type { AppProps } from 'next/app';
 import { createTheme, CssBaseline, ThemeProvider} from "@material-ui/core";
 import {RecoilRoot, useRecoilState} from "recoil";
-import {IsLogin} from "../states/atoms/main";
-import useUser from "../states/hooks/use-user";
+import Head from "next/head";
+import React from "react";
 
 const theme = createTheme();
 
@@ -14,6 +14,9 @@ function App(appProps: AppProps) {
       <CssBaseline/>
       <ThemeProvider theme={theme}>
         <RecoilRoot>
+          <Head>
+            <title>AnyCave</title>
+          </Head>
           <Root {...appProps} />
         </RecoilRoot>
       </ThemeProvider>
@@ -22,14 +25,9 @@ function App(appProps: AppProps) {
 }
 
 function Root({ Component, pageProps }: AppProps) {
-  const { user } = useUser();
-  if (user) {
-    return <Layout>
-      <Component {...pageProps} />
-    </Layout>;
-  } else {
-    return <Component {...pageProps} />;
-  }
+  return <Layout>
+    <Component {...pageProps} />
+  </Layout>;
 }
 
 export default App

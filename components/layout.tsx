@@ -1,14 +1,14 @@
 // @ts-ignore
 import Head from "next/head";
-import {Grid, styled} from "@material-ui/core";
+import {styled} from "@material-ui/core";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PodcastsIcon from '@mui/icons-material/Podcasts';
 import {Avatar, BottomNavigation, BottomNavigationAction, Drawer, Menu, MenuItem} from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import useUser from "../states/hooks/use-user";
-import UserService from "../services/auth-service";
 import AuthService from "../services/auth-service";
+import {Router, useRouter} from "next/router";
 
 type Props = {
   children: JSX.Element;
@@ -39,9 +39,18 @@ const MainContainer = styled('div')({
 });
 
 const Layout = ({ children }: Props) => {
-  const [drawOpen, setDrawOpen] = useState(true);
+  const [drawOpen, setDrawOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const { mutate } = useUser();
+  const { user, mutate } = useUser();
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    } else {
+      router.push('/');
+    }
+  }, [user]);
 
   const handleClick = (event: React.MouseEvent) => {
     // @ts-ignore
@@ -56,19 +65,21 @@ const Layout = ({ children }: Props) => {
     new AuthService().logout();
     mutate().then(r => setAnchorEl(null));
   };
-
+  if (!user) {
+    return <>{children}</>;
+  }
   return (
     <>
-      <Head>
-        <title>AnyCave</title>
-      </Head>
       <HeadContainer>
         <a
           aria-controls="simple-menu"
           aria-haspopup="true"
           onClick={handleClick}
         >
-          <Avatar src="/broken-image.jpg"/>
+          <Avatar
+            src="/broken-image.jpg"
+            sx={{ width: 50, height: 50 }}
+          />
         </a>
         <Menu
           id="simple-menu"
