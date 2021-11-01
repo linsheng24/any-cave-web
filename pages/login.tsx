@@ -3,7 +3,7 @@ import {Alert, Button, Grid, Grow, TextField, Typography} from "@mui/material";
 import {styled} from "@material-ui/core";
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
-import {useState} from "react";
+import {useEffect, useLayoutEffect, useState} from "react";
 import AuthService from "../services/auth-service";
 import useUser from "../states/hooks/use-user";
 import {useForm, Controller} from "react-hook-form";
@@ -58,16 +58,22 @@ const Login: NextPage = () => {
   const { control, handleSubmit } = useForm();
   const [isError, setIsError] = useState(false);
   const { mutate } = useUser();
-  console.log(control);
+
+  // @ts-ignore
   const loginHandler = async (data) => {
     const { email, password } = data;
     const authService = new AuthService();
+    // @ts-ignore
+    mutate('login');
     const result = await authService.login(email, password);
     if (result instanceof Error) {
       setIsError(true);
       setTimeout(() => setIsError(false), 3000);
+      // @ts-ignore
+      mutate(null);
+    } else {
+      mutate();
     }
-    mutate();
   }
 
   // @ts-ignore
@@ -82,7 +88,6 @@ const Login: NextPage = () => {
       <Grow in={isError}>
         <LoginAlert severity="warning">Login error, pls try again!</LoginAlert>
       </Grow>
-      {/*{isError && }*/}
       <form onSubmit={handleSubmit(loginHandler)}>
         <BodyContainer
           container

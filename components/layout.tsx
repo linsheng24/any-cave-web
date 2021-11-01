@@ -4,11 +4,23 @@ import {styled} from "@material-ui/core";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PodcastsIcon from '@mui/icons-material/Podcasts';
-import {Avatar, BottomNavigation, BottomNavigationAction, Drawer, Menu, MenuItem} from "@mui/material";
+import {
+  Avatar,
+  Backdrop,
+  BottomNavigation,
+  BottomNavigationAction,
+  CircularProgress,
+  Drawer,
+  Menu,
+  MenuItem
+} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import useUser from "../states/hooks/use-user";
 import AuthService from "../services/auth-service";
 import {Router, useRouter} from "next/router";
+import {DrawOpen} from "../states/atoms/main";
+import {useRecoilState} from "recoil";
+import RoomManage from "./room-manage";
 
 type Props = {
   children: JSX.Element;
@@ -38,19 +50,27 @@ const MainContainer = styled('div')({
   flex: 1
 });
 
-const Layout = ({ children }: Props) => {
-  const [drawOpen, setDrawOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const { user, mutate } = useUser();
-  const router = useRouter()
+const LayoutBackdrop = styled(Backdrop)({
+  backgroud: 'black',
+  opacity: 1,
+  zIndex: 1
+});
 
+const Layout = ({ children }: Props) => {
+  const [drawOpen, setDrawOpen] = useRecoilState(DrawOpen);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { user, mutate, loading, error } = useUser();
+  const router = useRouter()
+  const isLogin = Boolean(user);
+  const isError = Boolean(error);
   useEffect(() => {
-    if (!user) {
+    if (!isLogin && isError) {
       router.push('/login');
-    } else {
+    } else if (isLogin) {
       router.push('/');
     }
-  }, [user]);
+  }, [isLogin, isError]);
+  const isLoading = loading || (!isLogin && !isError)
 
   const handleClick = (event: React.MouseEvent) => {
     // @ts-ignore
@@ -66,10 +86,18 @@ const Layout = ({ children }: Props) => {
     mutate().then(r => setAnchorEl(null));
   };
   if (!user) {
-    return <>{children}</>;
+    return <>
+      <LayoutBackdrop open={isLoading}>
+        <CircularProgress color="inherit" />
+      </LayoutBackdrop>
+      {children}
+    </>;
   }
   return (
     <>
+      <Backdrop open={isLoading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <HeadContainer>
         <a
           aria-controls="simple-menu"
@@ -103,11 +131,10 @@ const Layout = ({ children }: Props) => {
               '& .MuiDrawer-paper': {boxSizing: 'border-box', width: {xs: '100%', sm: '400px'}},
             }}
           >
-            <p>test</p>
+            <RoomManage/>
           </Drawer>
           {children}
         </MainContainer>
-
         <BottomNavigation showLabels>
           <BottomNavigationAction label="room" icon={<ListAltIcon/>} onClick={() => setDrawOpen(true)}/>
           <BottomNavigationAction label="message" icon={<MailOutlineIcon/>}/>

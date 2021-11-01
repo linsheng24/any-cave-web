@@ -2,7 +2,7 @@ import 'typeface-roboto'
 import Layout from "../components/layout";
 import type { AppProps } from 'next/app';
 import { createTheme, CssBaseline, ThemeProvider} from "@material-ui/core";
-import {RecoilRoot, useRecoilState} from "recoil";
+import {RecoilRoot} from "recoil";
 import Head from "next/head";
 import React from "react";
 
