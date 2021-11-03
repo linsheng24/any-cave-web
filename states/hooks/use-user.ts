@@ -1,9 +1,9 @@
 import useSWR from "swr";
-import UserService from "../../services/auth-service";
+import AuthService from "../../services/auth-service";
 
 export default function useUser() {
-  const userService = new UserService();
-  const userFetcher = userService.userFetcher;
+  const authService = new AuthService();
+  const userFetcher = authService.userFetcher;
   const { data, mutate, error } = useSWR("user", userFetcher, { refreshInterval: 60000 });
   // @ts-ignore
   const loading = Boolean((data === 'login' || data === 'logout'));

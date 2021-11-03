@@ -16,7 +16,7 @@ class AuthService {
         'Authorization': 'Bearer ' + token,
       };
     } else {
-      return {};
+      return null
     }
   }
 
@@ -25,11 +25,13 @@ class AuthService {
   }
 
   public userFetcher = async () => {
+    const authHeader = AuthService.getAuthHeader();
+    // if (authHeader === null) return null;
     // @ts-ignore
     return this.request({
       method: 'post',
       url: '/profile',
-      headers: AuthService.getAuthHeader()
+      headers: authHeader
     });
   }
 

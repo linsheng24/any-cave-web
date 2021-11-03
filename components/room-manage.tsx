@@ -11,7 +11,8 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {useRecoilState} from "recoil";
 import {DrawOpen} from "../states/atoms/main";
-import {CaveListItems} from "../states/atoms/cave";
+import {ToggleCaveMap} from "../states/atoms/cave";
+import useUser from "../states/hooks/use-user";
 
 const ManageContainer = styled(Grid)({
   width: '100%',
@@ -42,35 +43,53 @@ const Content = styled(Grid)({
 
 const RoomManage = () => {
   const [drawOpen, setDrawOpen] = useRecoilState(DrawOpen);
-  const [caveListItems, setCaveListItems] = useRecoilState(CaveListItems);
-
-  // @ts-ignore
+  const [toggleCaveMap, setToggleCaveMap] = useRecoilState(ToggleCaveMap);
+  const { user } = useUser();
+  const caves = user.data.caves;
   const handleClick = (caveId) => {
-    const newCaveListItems = caveListItems.map(item => ({
-        ...item,
-        toggle: caveId === item.caveId ? !item.toggle : item.toggle
-      })
-    );
-    setCaveListItems(newCaveListItems);
+    // @ts-ignore
+    setToggleCaveMap({
+      ...toggleCaveMap,
+      [caveId]: !toggleCaveMap[caveId]
+    })
   };
 
-  const roomListItems = caveListItems.map((item) => {
+  const roomListItems = caves.map(cave => {
+    const toggle = Boolean(toggleCaveMap[cave.caveId]);
     return <>
-      <ListItemButton onClick={() => handleClick(item.caveId)}>
-        {item.toggle ? <ExpandLess/> : <ExpandMore/>}
-        <ListItemText primary={item.caveName}/>
+      <ListItemButton onClick={() => handleClick(cave.caveId)}>
+        {toggle ? <ExpandLess/> : <ExpandMore/>}
+        <ListItemText primary={cave.name}/>
       </ListItemButton>
-      <Collapse in={item.toggle} timeout="auto" unmountOnExit>
+      <Collapse in={toggle} timeout="auto" unmountOnExit>
         {
-          item.rooms.map((room) => <List component="div" disablePadding>
+          cave.rooms.map((room) => <List component="div" disablePadding>
             <ListItemButton>
-              <ListItemText primary={room.roomName}/>
+              <ListItemText primary={room.name}/>
             </ListItemButton>
           </List>)
         }
       </Collapse>
     </>;
   });
+
+  // const roomListItems = caveListItems.map((item) => {
+  //   return <>
+  //     <ListItemButton onClick={() => handleClick(item.caveId)}>
+  //       {item.toggle ? <ExpandLess/> : <ExpandMore/>}
+  //       <ListItemText primary={item.caveName}/>
+  //     </ListItemButton>
+  //     <Collapse in={item.toggle} timeout="auto" unmountOnExit>
+  //       {
+  //         item.rooms.map((room) => <List component="div" disablePadding>
+  //           <ListItemButton>
+  //             <ListItemText primary={room.roomName}/>
+  //           </ListItemButton>
+  //         </List>)
+  //       }
+  //     </Collapse>
+  //   </>;
+  // });
 
   return <ManageContainer
     container
